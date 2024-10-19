@@ -25,6 +25,8 @@ class _HomePageState extends State<HomePage> {
   Client client = ApiClient().client;
   late Account account;
   String? username, usermail, userlast;
+  String userSetupDone = "1";
+  String userSpecial = "0";
 
   @override
   void initState() {
@@ -40,6 +42,11 @@ class _HomePageState extends State<HomePage> {
         username = user.name;
         usermail = user.email;
         userlast = user.accessedAt;
+      });
+      final prefs = await account.getPrefs();     
+      setState(() {
+        userSetupDone = prefs.data['setup_done'] as String;
+        userSpecial = prefs.data['special'] as String;
       });
     } catch (e) {
       if (kDebugMode) {
@@ -79,7 +86,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Text(
-                "You are currently logged in as $usermail. Your last activity was on ${DateFormat('dd/MM/yyyy').format(DateTime.parse(userlast!))}.",
+                "You are currently logged in as $usermail. Your last activity was on ${userlast != null ? DateFormat('dd/MM/yyyy').format(DateTime.parse(userlast!)) : DateFormat('dd/MM/yyyy').format(DateTime.now())}.",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.deepPurple[200],
@@ -108,47 +115,50 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-            GestureDetector(
+            Visibility(
+              visible: userSetupDone != "1",
+              child: GestureDetector(
               onTap: () {
-                  vibrateSelection();
+                vibrateSelection();
               },
               child: Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
+                ),
+                child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                  Row(
+                    children: [
                     Icon(
-                    Icons.check_circle,
-                    color: Colors.deepPurple[100],
-                    size: 24.0,
+                      Icons.check_circle,
+                      color: Colors.deepPurple[100],
+                      size: 24.0,
                     ),
                     const SizedBox(width: 10),
                     Text(
-                    'Complete setup',
-                    style: TextStyle(
+                      'Complete setup',
+                      style: TextStyle(
                       color: Colors.deepPurple[100],
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    ),
-                  ],
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Text(
-                  'Complete your LWC profile setup, by clicking this card! It will only take a few minutes.',
-                  style: TextStyle(
+                    'Complete your LWC profile setup, by clicking this card! It will only take a few minutes.',
+                    style: TextStyle(
                     fontSize: 16,
                     color: Colors.deepPurple[200],
+                    ),
                   ),
-                  ),
-                ],
+                  ],
+                ),
                 ),
               ),
               ),

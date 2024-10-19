@@ -1,8 +1,13 @@
 import 'package:appwrite/enums.dart';
+import 'package:appwrite/models.dart';
+import 'package:cedu/auth/login.dart';
+import 'package:cedu/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   Client client = Client();
   client
       .setEndpoint('https://backend.srv2.catpawz.net/v1')
@@ -20,59 +25,59 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginScreen(client: client),
+      theme: ThemeData.dark(),
+      home: MainScreen(client: client),
     );
   }
 }
 
-class LoginScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   final Client client;
 
-  const LoginScreen({super.key, required this.client});
+  const MainScreen({super.key, required this.client});
 
-  void _loginWithGitHub(BuildContext context) async {
-    Account account = Account(client);
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
 
-    try {
-      await account.createOAuth2Session(provider: OAuthProvider.github);
-      // Navigate to the home screen after successful login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } catch (e) {
-      // Handle login error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $e')),
-      );
+class _MainScreenState extends State<MainScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkSession(context);
+  }
+
+  Future<void> _checkSession(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionId = prefs.getString('session');
+
+    if (sessionId != null) {
+      Account account = Account(widget.client);
+      try {
+        await account.getSession(sessionId: sessionId);
+        // Session is valid, navigate to the home screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } catch (e) {
+        // Session is invalid or expired, show login screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage(client: Client(),)),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login to CEDU')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => _loginWithGitHub(context),
-          child: const Text('Login with GitHub'),
-        ),
+      appBar: AppBar(
+        title: const Text('Login to CEDU'),
       ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: const Center(
-        child: Text('Hello World!'),
-        
-
+      body: Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }

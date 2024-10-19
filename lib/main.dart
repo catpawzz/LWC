@@ -98,12 +98,16 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login to CEDU'),
-      ),
-      body: const Center(
-        child: CircularProgressIndicator(),
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+        CircularProgressIndicator(),
+        SizedBox(height: 20),
+        Text('Loading...'),
+          ],
+        ),
       ),
     );
   }

@@ -3,7 +3,6 @@
 import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart';
 import 'package:cedu/home/home.dart';
-import 'package:cedu/inc/haptic.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/services.dart';
@@ -37,51 +36,21 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key, required this.client});
 
   void _loginWithO2(BuildContext context, OAuthProvider provider) async {
-    vibrateSelection();
     Account account = Account(client);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            title: const Text(
-            'Login',
-            style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          content: Text('Do you want to login with ${provider.name}? \n \nNote: The browser may stay open after you login, so please return to the app manually if it doesn\'t close automatically.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                vibrateSelection();
-                Navigator.of(context).pop();
-                try {
-                  await account.createOAuth2Session(provider: provider);
-                  User user = await account.get();
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setString('session', user.$id);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
-                  );
-                } catch (e) {
-                  vibrateError();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Login failed: $e')),
-                  );
-                }
-              },
-              child: const Text('Login'),
-            ),
-          ],
-        );
-      },
-    );
+    try {
+      await account.createOAuth2Session(provider: provider);
+      User user = await account.get();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('session', user.$id);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: $e')),
+      );
+    }
   }
 
   @override
@@ -96,6 +65,7 @@ class LoginScreen extends StatelessWidget {
             ?.withOpacity(0.1), // Adjust the opacity as needed
         systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
           // Set the status bar color to white
+            statusBarColor: Colors.transparent,
           statusBarIconBrightness:
               Brightness.light, // Set the status bar icons to dark
         ),

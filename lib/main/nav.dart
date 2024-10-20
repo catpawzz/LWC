@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:cedu/dash/profile.dart';
 import 'package:cedu/inc/haptic.dart';
 import 'package:cedu/main.dart';
 import 'package:flutter/foundation.dart';
@@ -33,7 +34,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
     HomePage(),
     HomePage(),
     HomePage(),
-    HomePage(),
+    ProfilePage(),
     HomePage(),
   ];
   bool setupStatus = false;

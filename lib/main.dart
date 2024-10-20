@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:cedu/auth/login.dart';
-import 'package:cedu/home/home.dart';
+import 'package:cedu/main/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
         // Session is valid, navigate to the home screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => BottomNavigation()),
         );
       } catch (e) {
         // Session is invalid or expired, show login screen

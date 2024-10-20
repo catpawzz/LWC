@@ -1,7 +1,7 @@
 name: cedu
 description: "A free app to learn code stuff"
 publish_to: 'none'
-version: 0.1.0
+version: 0.0.1+1
 
 environment:
   sdk: ^3.5.3

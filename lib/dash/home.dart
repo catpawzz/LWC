@@ -5,17 +5,8 @@ import 'package:cedu/inc/haptic.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-
 import '../inc/api.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: HomePage(),
-  ));
-}
-
-// ignore: use_key_in_widget_constructors
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -58,45 +49,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Learn With Catpawz',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: (Colors.deepPurple[100])
-            ?.withOpacity(0.1), // Adjust the opacity as needed
-        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          // Set the status bar color to white
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              Brightness.light, // Set the status bar icons to dark
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Welcome back, $username!',
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.deepPurple[100],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-                "You are currently logged in as $usermail. Your last activity was on ${userlast != null ? DateFormat('dd/MM/yyyy').format(DateTime.parse(userlast!)) : DateFormat('dd/MM/yyyy').format(DateTime.now())}.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.deepPurple[200],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Divider(
-              color: Colors.deepPurple[200],
-              thickness: 1,
-            ),
             const SizedBox(height: 10),
             Text(
               'Dashboard',

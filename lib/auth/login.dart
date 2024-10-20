@@ -2,7 +2,7 @@
 
 import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart';
-import 'package:cedu/home/home.dart';
+import 'package:cedu/main/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/services.dart';
@@ -44,7 +44,7 @@ class LoginScreen extends StatelessWidget {
       await prefs.setString('session', user.$id);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => BottomNavigation()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

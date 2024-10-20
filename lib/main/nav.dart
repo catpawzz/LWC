@@ -3,6 +3,8 @@
 import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:cedu/dash/collections.dart';
+import 'package:cedu/dash/courses.dart';
 import 'package:cedu/dash/profile.dart';
 import 'package:cedu/inc/haptic.dart';
 import 'package:cedu/main.dart';
@@ -32,8 +34,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
   String? username, usermail, userlast;
   final List<Widget> _pages = [
     HomePage(),
-    HomePage(),
-    HomePage(),
+    CollectionPage(),
+    CoursePage(),
     ProfilePage(),
     HomePage(),
   ];

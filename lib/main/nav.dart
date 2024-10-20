@@ -23,11 +23,14 @@ void main() {
 
 // ignore: use_key_in_widget_constructors
 class BottomNavigation extends StatefulWidget {
+  
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
 }
 
 class _BottomNavigationState extends State<BottomNavigation> {
+
+  
   late Account account;
   Client client = ApiClient().client;
   int _currentIndex = 0;
@@ -97,6 +100,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0xFF212027), // Use the hex color 141318
+      systemNavigationBarIconBrightness: Brightness.light, // Icon color
+    ));
     return Scaffold(
       appBar: AppBar(
         title: Column(

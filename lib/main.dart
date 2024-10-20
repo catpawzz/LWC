@@ -4,6 +4,7 @@ import 'package:cedu/auth/login.dart';
 import 'package:cedu/main/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'inc/api.dart';
 import 'inc/haptic.dart';
@@ -22,15 +23,23 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0xFF141318), // Use the hex color 141318
+      systemNavigationBarIconBrightness: Brightness.light, // Icon color
+    ));
     return MaterialApp(
       theme: ThemeData.dark(),
       home: MainScreen(client: client),
     );
+    
   }
+  
 }
 
 class MainScreen extends StatefulWidget {
   final Client client;
+  
 
   const MainScreen({super.key, required this.client});
 

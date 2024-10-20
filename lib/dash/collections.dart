@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
 import '../inc/api.dart';
 import '../inc/haptic.dart';
+import '../inc/itemviewer.dart';
 
 class CollectionPage extends StatefulWidget {
   @override
@@ -48,7 +50,9 @@ class _CollectionPageState extends State<CollectionPage> {
           'documents': documents.documents,
         });
       } catch (e) {
-        print('Error fetching documents for collection $i: $e');
+        if (kDebugMode) {
+          print('Error fetching documents for collection $i: $e');
+        }
       }
     }
 
@@ -62,7 +66,7 @@ class _CollectionPageState extends State<CollectionPage> {
 Widget build(BuildContext context) {
   return Scaffold(
     body: collectionsData.isEmpty
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : ListView.builder(
             itemCount: collectionsData.length,
             itemBuilder: (context, index) {
@@ -80,7 +84,7 @@ Widget build(BuildContext context) {
                   data: {},
                 ),
               );
-              final collectionTitle = collectionTitleDoc?.data['title'] ?? 'Collection';
+              final collectionTitle = collectionTitleDoc.data['title'] ?? 'Collection';
 
               return Column(
                 children: [
@@ -103,7 +107,7 @@ Widget build(BuildContext context) {
                               ListTile(
                                 title: Text(
                                   data['title'],
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 22.0,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -113,7 +117,7 @@ Widget build(BuildContext context) {
                                   children: [
                                     Row(
                                       children: [
-                                        Text('Difficulty: '),
+                                        const Text('Difficulty: '),
                                         ...List.generate(5, (dotIndex) {
                                           return Icon(
                                             Icons.circle,
@@ -126,10 +130,30 @@ Widget build(BuildContext context) {
                                       ],
                                     ),
                                     Text(data['description']),
+                                    const SizedBox(height: 10.0),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        vibrateSelection();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ItemViewer(
+                                              title: data['title'],
+                                              markdownContent: data['content'],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(Icons.description_rounded),
+                                      label: const Text('Open document'),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              Divider(), // Add a divider after each ListTile
+                              const Divider(), // Add a divider after each ListTile
                             ],
                           );
                         }).toList(),

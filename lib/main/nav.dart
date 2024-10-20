@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, duplicate_ignore
 
+import 'dart:async';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:cedu/inc/haptic.dart';
 import 'package:cedu/main.dart';
@@ -34,12 +36,15 @@ class _BottomNavigationState extends State<BottomNavigation> {
     HomePage(),
     HomePage(),
   ];
+  bool setupStatus = false;
+  bool accountRestricted = false;
 
   @override
   void initState() {
     super.initState();
     account = Account(client);
     getUserData();
+    Timer.periodic(const Duration(seconds: 20), (Timer t) => getUserData());
   }
 
   Future<void> getUserData() async {
@@ -49,6 +54,11 @@ class _BottomNavigationState extends State<BottomNavigation> {
         username = user.name;
         usermail = user.email;
         userlast = user.accessedAt;
+      });
+      final prefs = await account.getPrefs();     
+      setState(() {
+        setupStatus = prefs.data['setup_done'] != '1';
+        accountRestricted = prefs.data['restricted'] == '1';
       });
     } catch (e) {
       if (kDebugMode) {
@@ -142,6 +152,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
                     );
                   },
                 );
+              } else if (result == 'refresh') {
+                  getUserData();
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -153,10 +165,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
                 ),
               ),
               const PopupMenuItem<String>(
-                value: 'Option 2',
+                value: 'refresh',
                 child: ListTile(
-                  leading: Icon(Icons.collections_bookmark_rounded),
-                  title: Text('Option 2'),
+                  leading: Icon(Icons.refresh_rounded),
+                  title: Text('Manually refresh'),
                 ),
               ),
               const PopupMenuItem<String>(
@@ -170,7 +182,91 @@ class _BottomNavigationState extends State<BottomNavigation> {
           ),
         ],
       ),
-      body: _pages[_currentIndex],
+      body: Column(
+        children: [
+          Visibility(
+            visible: setupStatus, // Set this to control the visibility
+            child: Card(
+              margin: const EdgeInsets.all(0.0),
+              shape: RoundedRectangleBorder(
+              borderRadius:
+                BorderRadius.circular(0), // Remove rounded corners
+              ),
+              child: InkWell(
+              onTap: () {
+                vibrateSelection();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                children: [
+                  const Icon(Icons.verified_user_rounded), // Add an icon on the left
+                  const SizedBox(
+                    width:
+                      10), // Add some space between the icon and the text
+                  Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                    'Click to finish account setup!',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                    'It will only take a few minutes.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                  ),
+                ],
+                ),
+              ),
+              ),
+            ),
+          ),
+          Visibility(
+            visible: accountRestricted, // Set this to control the visibility
+            child: Card(
+              margin: const EdgeInsets.all(0.0),
+              shape: RoundedRectangleBorder(
+              borderRadius:
+                BorderRadius.circular(0), // Remove rounded corners
+              ),
+              child: InkWell(
+              onTap: () {
+                vibrateSelection();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                children: [
+                  const Icon(Icons.warning_rounded), // Add an icon on the left
+                  const SizedBox(
+                    width:
+                      10), // Add some space between the icon and the text
+                  Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                    'Account restricted!',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                    'You may not be able to access some features.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                  ),
+                ],
+                ),
+              ),
+              ),
+            ),
+          ),
+          Expanded(child: _pages[_currentIndex]),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         height: 60, // Set the desired height here
         selectedIndex: _currentIndex,

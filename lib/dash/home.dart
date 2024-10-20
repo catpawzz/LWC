@@ -54,7 +54,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
             Text(
               'Dashboard',
               style: TextStyle(
@@ -72,54 +71,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-            Visibility(
-              visible: userSetupDone != "1",
-              child: GestureDetector(
-              onTap: () {
-                vibrateSelection();
-              },
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  Row(
-                    children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.deepPurple[100],
-                      size: 24.0,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Complete setup',
-                      style: TextStyle(
-                      color: Colors.deepPurple[100],
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Complete your LWC profile setup, by clicking this card! It will only take a few minutes.',
-                    style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.deepPurple[200],
-                    ),
-                  ),
-                  ],
-                ),
-                ),
-              ),
-              ),
-            ),
           ],
         ),
       ),

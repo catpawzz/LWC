@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'inc/api.dart';
 import 'inc/haptic.dart';
+import 'dart:html' as html;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _checkSession(context);
+    html.document.title = "Learn With Catpawz | Loading...";
   }
 
   Future<void> _checkSession(BuildContext context) async {

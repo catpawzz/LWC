@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html;
 
 class ItemViewer extends StatelessWidget {
   final String title, author;
@@ -26,6 +27,7 @@ class ItemViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    html.document.title = "Learn With Catpawz | $title";
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Color(0xFF141318), // Use the hex color 141318
       systemNavigationBarIconBrightness: Brightness.light, // Icon color
@@ -58,6 +60,7 @@ class ItemViewer extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             HapticFeedback.vibrate();
+            html.document.title = "Learn With Catpawz | Home";
             Navigator.of(context).pop();
           },
         ),

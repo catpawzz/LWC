@@ -1,10 +1,13 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:cedu/inc/haptic.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gravatar/flutter_gravatar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../inc/api.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -18,6 +21,9 @@ class _ProfilePageState extends State<ProfilePage> {
   String? username = 'Guest', usermail, userlast;
   String userSetupDone = "1";
   String userSpecial = "0";
+  final mailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final nameController = TextEditingController();
 
   @override
   void initState() {
@@ -38,9 +44,11 @@ class _ProfilePageState extends State<ProfilePage> {
           username = user.name;
           usermail = user.email;
           userlast = user.accessedAt;
+          nameController.text = username ?? 'Guest';
+          mailController.text = usermail ?? 'Guest';
         }
       });
-      final prefs = await account.getPrefs();     
+      final prefs = await account.getPrefs();
       setState(() {
         userSetupDone = prefs.data['setup_done'] as String;
         userSpecial = prefs.data['special'] as String;
@@ -52,6 +60,63 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _changeUserName(BuildContext context) async {
+    vibrateSelection();
+    String newUserName = nameController.text.trim();
+    if (newUserName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a new username')),
+      );
+      return;
+    }
+    Account account = Account(client);
+
+    try {
+      await account.updateName(name: newUserName);
+
+      // Optionally, fetch the updated user to confirm the change
+      User user = await account.get();
+
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Username changed to: ${user.name}')),
+      );
+    } catch (e) {
+      print('Failed to change username: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to change username: $e')),
+      );
+    }
+  }
+
+  void _changeUserMail(BuildContext context) async {
+    vibrateSelection();
+    String newUserMail = mailController.text.trim();
+    if (newUserMail.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a new email')),
+      );
+      return;
+    }
+    Account account = Account(client);
+
+    try {
+      await account.updateEmail(email: newUserMail, password: passwordController.text);
+
+      // Optionally, fetch the updated user to confirm the change
+      User user = await account.get();
+
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Email changed to: ${user.email}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to change email: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,26 +125,138 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              username ?? '-',
-              style: TextStyle(
-                fontSize: 32,
-                color: Colors.deepPurple[100],
-                fontWeight: FontWeight.bold,
+            Row(
+              children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: NetworkImage(
+                Gravatar(usermail ?? 'guest@example.com').imageUrl(),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "This is your LWC profile, here you can review and update your account information.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.deepPurple[200],
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                  username ?? '-',
+                  style: TextStyle(
+                  fontSize: 32,
+                  color: Colors.deepPurple[100],
+                  fontWeight: FontWeight.bold,
+                  ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                  "This is your Learn With Catpawz profile, here you can review and update your account information.",
+                  style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[400],
+                  ),
+                  ),
+                ],
+                ),
               ),
+              ],
             ),
             const SizedBox(height: 5),
             Divider(
               color: Colors.deepPurple[300],
               thickness: 2,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Change your username',
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.deepPurple[100],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              "Please input your new username below and click 'Save username' to update your profile.",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[400],
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(12.0)), // Customize border radius
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _changeUserName(context),
+                icon: const FaIcon(FontAwesomeIcons.check),
+                label: const Text('Save username'),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                      color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Divider(),
+            const SizedBox(height: 5),
+            Text(
+              'Change your email address',
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.deepPurple[100],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              "To change your email address, please enter your new email and current password below.",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[400],
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: mailController,
+              decoration: const InputDecoration(
+                labelText: 'Mail',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(12.0)), // Customize border radius
+                ),
+              ),
+            ),
+            const SizedBox(height: 10), // Add some spacing between the fields
+            TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(12.0)), // Customize border radius
+                ),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _changeUserMail(context),
+                icon: const FaIcon(FontAwesomeIcons.check),
+                label: const Text('Save e-mail adress'),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                      color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+                ),
+              ),
             ),
             const SizedBox(height: 10),
           ],

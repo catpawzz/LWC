@@ -12,8 +12,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../dash/home.dart';
 import '../inc/api.dart';
+import 'dart:html' as html;
 
 void main() {
   runApp(MaterialApp(
@@ -49,11 +51,12 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     super.initState();
     account = Account(client);
-    getUserData();
-    Timer.periodic(const Duration(seconds: 20), (Timer t) => getUserData());
+    refetchUserData();
+    Timer.periodic(const Duration(seconds: 20), (Timer t) => refetchUserData());
+    html.document.title = "Learn With Catpawz | Home";
   }
 
-  Future<void> getUserData() async {
+  Future<void> refetchUserData() async {
     try {
       final user = await account.get();
       setState(() {
@@ -105,6 +108,15 @@ class _BottomNavigationState extends State<BottomNavigation> {
       if (kDebugMode) {
         print('Error logging out: $e');
       }
+    }
+  }
+
+  void _openWebsite(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -173,15 +185,26 @@ class _BottomNavigationState extends State<BottomNavigation> {
                   },
                 );
               } else if (result == 'refresh') {
-                  getUserData();
+                  refetchUserData();
+              } else if (result == 'privacy') {
+                  _openWebsite("https://legal.catpawz.net/lwc-privacy");
+              } else if (result == 'tos') {
+                  _openWebsite("https://legal.catpawz.net/lwc-tos");
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
-                value: 'Option 1',
+                value: 'privacy',
                 child: ListTile(
-                  leading: Icon(Icons.dashboard_rounded),
-                  title: Text('Option 1'),
+                  leading: Icon(Icons.policy_rounded),
+                  title: Text('Privacy Policy'),
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'tos',
+                child: ListTile(
+                  leading: Icon(Icons.policy_rounded),
+                  title: Text('Terms Of Service'),
                 ),
               ),
               const PopupMenuItem<String>(
@@ -284,7 +307,12 @@ class _BottomNavigationState extends State<BottomNavigation> {
               ),
             ),
           ),
-          Expanded(child: _pages[_currentIndex]),
+            Expanded(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 800), // Set the max width here
+              child: _pages[_currentIndex],
+            ),
+            ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

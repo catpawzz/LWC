@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
               "Welcome to your dashboard. Here you'll find an overview of your account and the latest updates, plus some random courses to get you started.",
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.deepPurple[200],
+                color: Colors.grey[400],
               ),
             ),
             const SizedBox(height: 20),

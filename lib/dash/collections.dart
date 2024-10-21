@@ -62,109 +62,110 @@ class _CollectionPageState extends State<CollectionPage> {
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: collectionsData.isEmpty
-        ? const Center(child: CircularProgressIndicator())
-        : ListView.builder(
-            itemCount: collectionsData.length,
-            itemBuilder: (context, index) {
-              final collection = collectionsData[index];
-              final documents = collection['documents'] as List<models.Document>;
-              final collectionTitleDoc = documents.firstWhere(
-                (doc) => doc.data['is_collection_title'] ?? false,
-                orElse: () => models.Document(
-                  $id: '',
-                  $collectionId: '',
-                  $databaseId: '',
-                  $createdAt: '',
-                  $updatedAt: '',
-                  $permissions: [],
-                  data: {},
-                ),
-              );
-              final collectionTitle = collectionTitleDoc.data['title'] ?? 'Collection';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: collectionsData.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: collectionsData.length,
+              itemBuilder: (context, index) {
+                final collection = collectionsData[index];
+                final documents =
+                    collection['documents'] as List<models.Document>;
+                final collectionTitleDoc = documents.firstWhere(
+                  (doc) => doc.data['is_collection_title'] ?? false,
+                  orElse: () => models.Document(
+                    $id: '',
+                    $collectionId: '',
+                    $databaseId: '',
+                    $createdAt: '',
+                    $updatedAt: '',
+                    $permissions: [],
+                    data: {},
+                  ),
+                );
+                final collectionTitle =
+                    collectionTitleDoc.data['title'] ?? 'Collection';
 
-              return Column(
-                children: [
-                  Container(
-                    padding: EdgeInsets.zero,
-                    margin: EdgeInsets.zero,
-                    child: Theme(
-                      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        onExpansionChanged: (bool expanded) {
+                return Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.zero,
+                      margin: EdgeInsets.zero,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          backgroundColor: Colors.deepPurple[200]?.withOpacity(0.1), // Set the background color
+                          onExpansionChanged: (bool expanded) {
                           vibrateSelection();
-                        },
-                        title: Text(collectionTitle), // Use the title of the hidden document
-                        children: documents
-                            .where((doc) => !(doc.data['is_collection_title'] ?? false))
-                            .map((doc) {
-                          var data = doc.data;
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Text(
-                                  data['title'],
-                                  style: const TextStyle(
-                                    fontSize: 22.0,
-                                    fontWeight: FontWeight.bold,
+                          },
+                          title: Text(
+                              collectionTitle), // Use the title of the hidden document
+                          children: documents
+                              .where((doc) =>
+                                  !(doc.data['is_collection_title'] ?? false))
+                              .map((doc) {
+                            var data = doc.data;
+                            return Column(
+                              children: [
+                                ListTile(
+                                  title: Text(
+                                    data['title'],
+                                    style: const TextStyle(
+                                      fontSize: 22.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Text('Difficulty: '),
-                                        ...List.generate(5, (dotIndex) {
-                                          return Icon(
-                                            Icons.circle,
-                                            color: dotIndex < data['difficulty']
-                                                ? Colors.deepPurple
-                                                : Colors.grey,
-                                            size: 12.0,
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                    Text(data['description']),
-                                    const SizedBox(height: 10.0),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        vibrateSelection();
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ItemViewer(
-                                              title: data['title'],
-                                              author: data['author'] ?? "Unknown Author",
-                                              markdownContent: data['content'],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.description_rounded),
-                                      label: const Text('Open document'),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text('Difficulty: '),
+                                          ...List.generate(5, (dotIndex) {
+                                            return Icon(
+                                              Icons.circle,
+                                              color:
+                                                  dotIndex < data['difficulty']
+                                                      ? Colors.deepPurple[300]
+                                                      : Colors.grey[800],
+                                              size: 12.0,
+                                            );
+                                          }),
+                                        ],
                                       ),
-                                    ),
-                                  ],
+                                      SizedBox(height: 10.0),
+                                      Text(data['description']),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    vibrateSelection();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ItemViewer(
+                                          title: data['title'],
+                                          author: data['author'] ??
+                                              "Unknown Author",
+                                          markdownContent: data['content'],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
-                              const Divider(), // Add a divider after each ListTile
-                            ],
-                          );
-                        }).toList(),
+                              ],
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-  );
-}
+                  ],
+                );
+              },
+            ),
+    );
+  }
 }

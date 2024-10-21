@@ -15,7 +15,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   Client client = ApiClient().client;
   late Account account;
-  String? username, usermail, userlast;
+  String? username = 'Guest', usermail, userlast;
   String userSetupDone = "1";
   String userSpecial = "0";
 
@@ -30,9 +30,15 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final user = await account.get();
       setState(() {
-        username = user.name;
-        usermail = user.email;
-        userlast = user.accessedAt;
+        if (user.email.isEmpty) {
+          username = 'Anonymous user';
+          usermail = 'N/A';
+          userlast = 'N/A';
+        } else {
+          username = user.name;
+          usermail = user.email;
+          userlast = user.accessedAt;
+        }
       });
       final prefs = await account.getPrefs();     
       setState(() {

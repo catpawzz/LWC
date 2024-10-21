@@ -3,11 +3,13 @@
 import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart';
 import 'package:cedu/main/nav.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import '../inc/api.dart';
 
 void main() {
@@ -32,8 +34,10 @@ class LoginPage extends StatelessWidget {
 
 class LoginScreen extends StatelessWidget {
   final Client client;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  const LoginScreen({super.key, required this.client});
+  LoginScreen({super.key, required this.client});
 
   void _loginWithO2(BuildContext context, OAuthProvider provider) async {
     Account account = Account(client);
@@ -53,6 +57,83 @@ class LoginScreen extends StatelessWidget {
     }
   }
 
+  void _loginOrRegisterWithEmail(
+      BuildContext context) async {
+      String email = emailController.text;
+      String password = passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter both email and password')),
+      );
+      return;
+    }
+
+    Account account =
+        Account(client); // Make sure 'client' is initialized correctly
+    try {
+      // Attempt to log in with email and password
+      print('Attempting to log in...');
+      await account.createEmailPasswordSession(
+          email: email, password: password);
+      User user = await account.get();
+
+      // Save session ID
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('session', user.$id);
+
+      // Navigate to the main screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigation()),
+      );
+    } catch (e) {
+      print('Login failed: $e');
+      if (e.toString().contains('User not found') ||
+          (e is AppwriteException && e.code == 401)) {
+        try {
+          var uuid = const Uuid();
+          String randomUserId = uuid.v4();
+
+          // If user is not found, register a new account
+          print('User not found. Registering new user...');
+          await account.create(
+            userId: randomUserId,
+            email: email,
+            password: password,
+            name: email.split('@')[0],
+          );
+
+          // Log in again after registration
+          await account.createEmailPasswordSession(
+              email: email, password: password);
+          User user = await account.get();
+
+          // Save session ID
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('session', user.$id);
+
+          // Navigate to the main screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => BottomNavigation()),
+          );
+        } catch (registerError) {
+          // Show an error message if registration fails
+          print('Registration failed: $registerError');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration failed: $registerError')),
+          );
+        }
+      } else {
+        // Show a generic login error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +146,7 @@ class LoginScreen extends StatelessWidget {
             ?.withOpacity(0.1), // Adjust the opacity as needed
         systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
           // Set the status bar color to white
-            statusBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
           statusBarIconBrightness:
               Brightness.light, // Set the status bar icons to dark
         ),
@@ -89,7 +170,9 @@ class LoginScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _loginWithO2(context, OAuthProvider.github),
+                onPressed: kIsWeb
+                    ? null
+                    : () => _loginWithO2(context, OAuthProvider.github),
                 icon: const FaIcon(FontAwesomeIcons.github),
                 label: const Text('Login with GitHub'),
                 style: OutlinedButton.styleFrom(
@@ -98,10 +181,13 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 5),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _loginWithO2(context, OAuthProvider.google),
+                onPressed: kIsWeb
+                    ? null
+                    : () => _loginWithO2(context, OAuthProvider.google),
                 icon: const FaIcon(FontAwesomeIcons.google),
                 label: const Text('Login with Google'),
                 style: OutlinedButton.styleFrom(
@@ -110,12 +196,49 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 5),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _loginWithO2(context, OAuthProvider.discord),
+                onPressed: kIsWeb
+                    ? null
+                    : () => _loginWithO2(context, OAuthProvider.discord),
                 icon: const FaIcon(FontAwesomeIcons.discord),
                 label: const Text('Login with Discord'),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                      color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+              labelText: 'Email',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0)), // Customize border radius
+              ),
+              ),
+            ),
+            const SizedBox(height: 10), // Add some spacing between the fields
+            TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0)), // Customize border radius
+              ),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _loginOrRegisterWithEmail(context),
+                icon: const FaIcon(FontAwesomeIcons.user),
+                label: const Text('Login/Register using email & password'),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
                       color: (Colors.deepPurple[100])!.withOpacity(0.3)),

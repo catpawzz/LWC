@@ -57,15 +57,25 @@ class _BottomNavigationState extends State<BottomNavigation> {
     try {
       final user = await account.get();
       setState(() {
-        username = user.name;
-        usermail = user.email;
-        userlast = user.accessedAt;
+        if (user.email.isEmpty) {
+          username = 'Anonymous user';
+          usermail = 'N/A';
+          userlast = 'N/A';
+        } else {
+          username = user.name;
+          usermail = user.email;
+          userlast = user.accessedAt;
+        }
       });
-      final prefs = await account.getPrefs();     
-      setState(() {
-        setupStatus = prefs.data['setup_done'] != '1';
-        accountRestricted = prefs.data['restricted'] == '1';
-      });
+        if (user.email.isEmpty) {
+          //nothing
+        } else {
+        final prefs = await account.getPrefs();     
+        setState(() {
+          setupStatus = prefs.data['setup_done'] != '1';
+          accountRestricted = prefs.data['restricted'] == '1';
+        });
+        }
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching user data: $e');

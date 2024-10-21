@@ -141,6 +141,7 @@ Widget build(BuildContext context) {
                                           MaterialPageRoute(
                                             builder: (context) => ItemViewer(
                                               title: data['title'],
+                                              author: data['author'] ?? "Unknown Author",
                                               markdownContent: data['content'],
                                             ),
                                           ),

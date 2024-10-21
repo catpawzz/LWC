@@ -15,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../dash/home.dart';
 import '../inc/api.dart';
-import 'dart:html' as html;
 
 void main() {
   runApp(MaterialApp(
@@ -53,7 +52,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
     account = Account(client);
     refetchUserData();
     Timer.periodic(const Duration(seconds: 20), (Timer t) => refetchUserData());
-    html.document.title = "Learn With Catpawz | Home";
   }
 
   Future<void> refetchUserData() async {

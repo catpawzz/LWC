@@ -15,18 +15,34 @@ class _CollectionPageState extends State<CollectionPage> {
   late Client client;
   late Databases databases;
   List<Map<String, dynamic>> collectionsData = [];
-  final int collectionCount =
-      10; // Adjust this number based on your expected number of collections
-  final String databaseId =
-      '670bfd1e002d952eb58c'; // Replace with your actual database ID
+  int collectionCount = 100;
+  final String databaseId = '670bfd1e002d952eb58c'; 
 
   @override
   void initState() {
     super.initState();
-    client =
-        ApiClient().client; // Ensure that the client is initialized correctly
+    client = ApiClient().client;
     databases = Databases(client);
+    _fetchCollectionFlags();
     _fetchCollectionsAndDocuments();
+  }
+
+  Future<void> _fetchCollectionFlags() async {
+    try {
+      final document = await databases.getDocument(
+        databaseId: "6717455f0012149ec55f",
+        collectionId: "normal",
+        documentId: "671745b600111b41a429",
+      );
+      final int collections = document.data['collections'] ?? ''; 
+      setState(() {
+        collectionCount = collections;
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching document: $e');
+      }
+    }
   }
 
   Future<void> _fetchCollectionsAndDocuments() async {
@@ -34,19 +50,12 @@ class _CollectionPageState extends State<CollectionPage> {
 
     for (int i = 1; i <= collectionCount; i++) {
       try {
-        // Fetch documents for each collection
         final documents = await databases.listDocuments(
           databaseId: databaseId,
-          collectionId: i
-              .toString(), // Assuming collection IDs are strings of numbers like '1', '2', etc.
+          collectionId: i.toString(),
         );
-
-        // Store the collection name and its documents
-        // Here, we are just using the collection ID as the name,
-        // adjust if you have a way to fetch real names
         tempCollectionsData.add({
-          'collectionName':
-              'Collection $i', // You can customize this if you have actual names
+          'collectionName':'Collection $i',
           'documents': documents.documents,
         });
       } catch (e) {
@@ -55,8 +64,6 @@ class _CollectionPageState extends State<CollectionPage> {
         }
       }
     }
-
-    // Update the state with the fetched data
     setState(() {
       collectionsData = tempCollectionsData;
     });
@@ -97,9 +104,10 @@ class _CollectionPageState extends State<CollectionPage> {
                         data: Theme.of(context)
                             .copyWith(dividerColor: Colors.transparent),
                         child: ExpansionTile(
-                          backgroundColor: Colors.deepPurple[200]?.withOpacity(0.1), // Set the background color
+                          backgroundColor: Colors.deepPurple[200]
+                              ?.withOpacity(0.1), // Set the background color
                           onExpansionChanged: (bool expanded) {
-                          vibrateSelection();
+                            vibrateSelection();
                           },
                           title: Text(
                               collectionTitle), // Use the title of the hidden document
@@ -137,7 +145,7 @@ class _CollectionPageState extends State<CollectionPage> {
                                           }),
                                         ],
                                       ),
-                                      SizedBox(height: 10.0),
+                                      const SizedBox(height: 10.0),
                                       Text(data['description']),
                                     ],
                                   ),

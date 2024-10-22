@@ -89,6 +89,30 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _sendVerificationMail(BuildContext context) async {
+  vibrateSelection();
+  Account account = Account(client);
+
+  try {
+
+    // Send a verification email to the new email address
+    await account.createVerification(url: 'https://lwc.catpawz.net',);
+
+    // Optionally, fetch the updated user to confirm the change
+    User user = await account.get();
+
+    // Show a success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Verification email sent to ${user.email}! Make sure to also check your spam folder.')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to send verification: $e')),
+    );
+  }
+}
+
+
   void _changeUserMail(BuildContext context) async {
     vibrateSelection();
     String newUserMail = mailController.text.trim();
@@ -153,6 +177,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontSize: 16,
                   color: Colors.grey[400],
                   ),
+                  ),
+                                    Text(
+                  "Your profile picture within the app is loaded from the gravatar service, based on your email address.",
+                    style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[400],
+                    fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
                 ),
@@ -252,6 +284,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () => _changeUserMail(context),
                 icon: const FaIcon(FontAwesomeIcons.check),
                 label: const Text('Save e-mail adress'),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                      color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _sendVerificationMail(context),
+                icon: const FaIcon(FontAwesomeIcons.envelope),
+                label: const Text('Send verification email'),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
                       color: (Colors.deepPurple[100])!.withOpacity(0.3)),

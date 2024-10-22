@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, duplicate_ignore
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:cedu/dash/collections.dart';
@@ -11,6 +12,7 @@ import 'package:cedu/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../dash/home.dart';
@@ -322,24 +324,29 @@ class _BottomNavigationState extends State<BottomNavigation> {
             _currentIndex = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.dashboard_rounded),
             label: 'Dashboard',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.collections_bookmark_rounded),
             label: 'Collections',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.quiz_rounded),
             label: 'Courses',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle_rounded),
+            NavigationDestination(
+            icon:              CircleAvatar(
+                radius: 15,
+                backgroundImage: NetworkImage(
+                Gravatar(usermail ?? 'guest@example.com').imageUrl(),
+                ),
+              ),
             label: 'Profile',
-          ),
-          NavigationDestination(
+            ),
+          const NavigationDestination(
             icon: Icon(Icons.settings_rounded),
             label: 'Settings',
           ),

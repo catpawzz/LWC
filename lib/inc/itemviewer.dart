@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ItemViewer extends StatelessWidget {
+class ItemViewer extends StatefulWidget {
   final String title, author;
   final String markdownContent;
 
@@ -14,6 +14,51 @@ class ItemViewer extends StatelessWidget {
       required this.markdownContent,
       required this.author})
       : super(key: key);
+
+  @override
+  _ItemViewerState createState() => _ItemViewerState();
+}
+
+class _ItemViewerState extends State<ItemViewer> {
+  final ScrollController _scrollController = ScrollController();
+  final List<_HeadingItem> _headings = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _extractHeadings();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _extractHeadings() {
+    final RegExp headingRegExp = RegExp(r'^(#{1,6})\s+(.*)', multiLine: true);
+    final matches = headingRegExp.allMatches(widget.markdownContent);
+
+    _headings.clear();
+    for (final match in matches) {
+      final level = match.group(1)!.length;
+      final text = match.group(2)!;
+      _headings.add(_HeadingItem(level, text));
+    }
+  }
+
+  void _scrollToHeading(String text) {
+    final index = _headings.indexWhere((h) => h.text == text);
+    if (index != -1) {
+      final offset = _scrollController.position.minScrollExtent +
+          (index * 100); // Estimate a height of 100 pixels per heading
+      _scrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   void _openWebsite(String url) async {
     final Uri uri = Uri.parse(url);
@@ -30,17 +75,18 @@ class ItemViewer extends StatelessWidget {
       systemNavigationBarColor: Color(0xFF141318), // Use the hex color 141318
       systemNavigationBarIconBrightness: Brightness.light, // Icon color
     ));
+
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              title,
+              widget.title,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
-              'Written by $author',
+              'Written by ${widget.author}',
               style:
                   const TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
             ),
@@ -49,23 +95,59 @@ class ItemViewer extends StatelessWidget {
         backgroundColor: (Colors.deepPurple[100])
             ?.withOpacity(0.1), // Adjust the opacity as needed
         systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          // Set the status bar color to white
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              Brightness.light, // Set the status bar icons to dark
+          statusBarIconBrightness: Brightness.light,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            HapticFeedback.vibrate();
+            vibrateSelection();
             Navigator.of(context).pop();
+          },
+        ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu), // Icon to open the drawer
+              onPressed: () {
+                vibrateSelection();
+                Scaffold.of(context).openDrawer(); // Open the drawer
+              },
+            ),
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView.builder(
+          itemCount: _headings.length + 1, // Add one for the divider
+          itemBuilder: (context, index) {
+        if (index == 1) {
+          return const Divider(); // Add a divider after the first item
+        }
+        final headingIndex = index > 1 ? index - 1 : index;
+        final heading = _headings[headingIndex];
+        return ListTile(
+          title: Text(
+            heading.text,
+            style: TextStyle(
+          fontWeight: heading.level <= 2
+              ? FontWeight.bold
+              : FontWeight.normal,
+            ),
+          ),
+          onTap: () {
+            Navigator.pop(context); // Close the drawer
+            _scrollToHeading(heading.text);
+          },
+        );
           },
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Markdown(
-          data: markdownContent,
+          controller: _scrollController,
+          data: widget.markdownContent,
           selectable: true,
           styleSheet: MarkdownStyleSheet(
             p: const TextStyle(fontSize: 16),
@@ -74,12 +156,12 @@ class ItemViewer extends StatelessWidget {
               backgroundColor: Colors.grey[900],
             ),
             a: TextStyle(
-              color: Colors.deepPurple[400] ?? Colors.deepPurple, // Customize the link color here
+              color: Colors.deepPurple[400] ?? Colors.deepPurple,
             ),
             codeblockDecoration: BoxDecoration(
               color: Colors.grey[900],
               borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(color: Colors.grey[700]!), // Light gray border
+              border: Border.all(color: Colors.grey[700]!),
             ),
             codeblockPadding: const EdgeInsets.all(8.0),
             blockquote: TextStyle(
@@ -112,9 +194,15 @@ class ItemViewer extends StatelessWidget {
               _openWebsite(href);
             }
           },
-          
         ),
       ),
     );
   }
+}
+
+class _HeadingItem {
+  final int level;
+  final String text;
+
+  _HeadingItem(this.level, this.text);
 }

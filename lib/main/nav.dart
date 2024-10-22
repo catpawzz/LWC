@@ -120,7 +120,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       systemNavigationBarColor: Color(0xFF212027), // Use the hex color 141318
       systemNavigationBarIconBrightness: Brightness.light, // Icon color
     ));
@@ -307,7 +307,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
           ),
             Expanded(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 800), // Set the max width here
+              constraints: const BoxConstraints(maxWidth: 800), // Set the max width here
               child: _pages[_currentIndex],
             ),
             ),

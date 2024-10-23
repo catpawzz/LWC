@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:cedu/inc/haptic.dart';
@@ -30,6 +32,14 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     account = Account(client);
     getUserData();
+    Timer.periodic(const Duration(seconds: 1), (Timer t) => changeNavColor());
+  }
+
+  changeNavColor() {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0xFF141318),
+      systemNavigationBarIconBrightness: Brightness.light,
+    ));
   }
 
   Future<void> getUserData() async {
@@ -90,28 +100,26 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _sendVerificationMail(BuildContext context) async {
-  vibrateSelection();
-  Account account = Account(client);
+    vibrateSelection();
+    Account account = Account(client);
 
-  try {
+    try {
+      // Send a verification email to the new email address
+      await account.createVerification(url: 'https://lwc.catpawz.net');
 
-    // Send a verification email to the new email address
-    await account.createVerification(url: 'https://lwc.catpawz.net',);
+      // Optionally, fetch the updated user to confirm the change
+      User user = await account.get();
 
-    // Optionally, fetch the updated user to confirm the change
-    User user = await account.get();
-
-    // Show a success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Verification email sent to ${user.email}! Make sure to also check your spam folder.')),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to send verification: $e')),
-    );
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Verification email sent to ${user.email}! Make sure to also check your spam folder.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send verification: $e')),
+      );
+    }
   }
-}
-
 
   void _changeUserMail(BuildContext context) async {
     vibrateSelection();
@@ -144,167 +152,199 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: NetworkImage(
-                Gravatar(usermail ?? 'guest@example.com').imageUrl(),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: SingleChildScrollView( // Add the SingleChildScrollView here
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Text(
-                  username ?? '-',
-                  style: TextStyle(
-                  fontSize: 32,
-                  color: Colors.deepPurple[100],
-                  fontWeight: FontWeight.bold,
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: NetworkImage(
+                      Gravatar(usermail ?? 'guest@example.com').imageUrl(),
+                    ),
                   ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                  "This is your Learn With Catpawz profile, here you can review and update your account information.",
-                  style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[400],
-                  ),
-                  ),
-                                    Text(
-                  "Your profile picture within the app is loaded from the gravatar service, based on your email address.",
-                    style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[400],
-                    fontStyle: FontStyle.italic,
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          username ?? '-',
+                          style: TextStyle(
+                            fontSize: 32,
+                            color: Colors.deepPurple[100],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "This is your Learn With Catpawz profile, here you can review and update your account information.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "Your profile picture within the app is loaded from the gravatar service, based on your email address.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[400],
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 5),
+              Divider(
+                color: Colors.deepPurple[300],
+                thickness: 2,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Change your username',
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.deepPurple[100],
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Divider(
-              color: Colors.deepPurple[300],
-              thickness: 2,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Change your username',
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.deepPurple[100],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              "Please input your new username below and click 'Save username' to update your profile.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[400],
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(12.0)), // Customize border radius
+              Text(
+                "Please input your new username below and click 'Save username' to update your profile.",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[400],
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _changeUserName(context),
-                icon: const FaIcon(FontAwesomeIcons.check),
-                label: const Text('Save username'),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                      color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+              const SizedBox(height: 10),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(12.0)), // Customize border radius
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            const Divider(),
-            const SizedBox(height: 5),
-            Text(
-              'Change your email address',
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.deepPurple[100],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              "To change your email address, please enter your new email and current password below.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[400],
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: mailController,
-              decoration: const InputDecoration(
-                labelText: 'Mail',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(12.0)), // Customize border radius
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _changeUserName(context),
+                  icon: const FaIcon(FontAwesomeIcons.check),
+                  label: const Text('Save username'),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10), // Add some spacing between the fields
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(12.0)), // Customize border radius
+              const SizedBox(height: 10),
+              const Divider(),
+              const SizedBox(height: 5),
+              Text(
+                'Change your email address',
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.deepPurple[100],
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _changeUserMail(context),
-                icon: const FaIcon(FontAwesomeIcons.check),
-                label: const Text('Save e-mail adress'),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                      color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+              Text(
+                "To change your email address, please enter your new email and current password below.",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[400],
                 ),
               ),
-            ),
-            const SizedBox(height: 5),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _sendVerificationMail(context),
-                icon: const FaIcon(FontAwesomeIcons.envelope),
-                label: const Text('Send verification email'),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                      color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+              const SizedBox(height: 10),
+              TextField(
+                controller: mailController,
+                decoration: const InputDecoration(
+                  labelText: 'Mail',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(12.0)), // Customize border radius
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-          ],
+              const SizedBox(height: 10), // Add some spacing between the fields
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(12.0)), // Customize border radius
+                  ),
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _changeUserMail(context),
+                  icon: const FaIcon(FontAwesomeIcons.check),
+                  label: const Text('Save e-mail adress'),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 5),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _sendVerificationMail(context),
+                  icon: const FaIcon(FontAwesomeIcons.envelope),
+                  label: const Text('Resend verification mail'),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: (Colors.deepPurple[100])!.withOpacity(0.3)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Divider(),
+              const SizedBox(height: 5),
+              if (userSetupDone == '0')
+                Card(
+                  color: Colors.deepPurple[400],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Your profile is incomplete.\nFollow the tutorial to get started.",
+                          style: TextStyle(
+                              fontSize: 14, color: Colors.deepPurple[50]),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/init');
+                          },
+                          icon: const Icon(Icons.navigate_next),
+                          label: const Text('Follow tutorial'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

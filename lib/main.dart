@@ -12,7 +12,7 @@ import 'inc/haptic.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Client client = ApiClient().client;
-  
+
   runApp(MainApp(client: client));
 }
 
@@ -23,7 +23,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       systemNavigationBarColor: Color(0xFF141318), // Use the hex color 141318
       systemNavigationBarIconBrightness: Brightness.light, // Icon color
@@ -32,14 +31,11 @@ class MainApp extends StatelessWidget {
       theme: ThemeData.dark(),
       home: MainScreen(client: client),
     );
-    
   }
-  
 }
 
 class MainScreen extends StatefulWidget {
   final Client client;
-  
 
   const MainScreen({super.key, required this.client});
 
@@ -74,47 +70,73 @@ class _MainScreenState extends State<MainScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-                title: const Text(
+              title: const Text(
                 'Session Expired',
                 style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              content: const Text("Your account has been blocked, deleted or this is the first time you're accessing this app. Please login again."),
+              ),
+              content: const Text(
+                  "Your account has been blocked, deleted or this is the first time you're accessing this app. Please login again."),
               actions: <Widget>[
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              vibrateSelection();
-              Navigator.of(context).pop();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage(client: widget.client)),
-              );
-            },
-          ),
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    vibrateSelection();
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              LoginPage(client: widget.client)),
+                    );
+                  },
+                ),
               ],
             );
           },
         );
       }
     } else {
-        Navigator.pushReplacement(
-          context,
-            MaterialPageRoute(builder: (context) => LoginPage(client: widget.client)),
-        );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LoginPage(client: widget.client)),
+      );
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Learn With Catpawz',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'Initializing app...',
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
+            ),
+          ],
+        ),
+        backgroundColor: (Colors.deepPurple[100])
+            ?.withOpacity(0.1), // Adjust the opacity as needed
+        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+          // Set the status bar color to white
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness:
+              Brightness.light, // Set the status bar icons to dark
+        ),
+      ),
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-        CircularProgressIndicator(),
-        SizedBox(height: 20),
-        Text('Loading...'),
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text('Loading...'),
           ],
         ),
       ),

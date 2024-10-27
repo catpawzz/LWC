@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:cedu/auth/setup.dart';
 import 'package:cedu/dash/collections.dart';
 import 'package:cedu/dash/courses.dart';
 import 'package:cedu/dash/profile.dart';
@@ -26,14 +27,11 @@ void main() {
 
 // ignore: use_key_in_widget_constructors
 class BottomNavigation extends StatefulWidget {
-  
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
 }
 
 class _BottomNavigationState extends State<BottomNavigation> {
-
-  
   late Account account;
   Client client = ApiClient().client;
   int _currentIndex = 0;
@@ -70,15 +68,15 @@ class _BottomNavigationState extends State<BottomNavigation> {
           userlast = user.accessedAt;
         }
       });
-        if (user.email.isEmpty) {
-          //nothing
-        } else {
-        final prefs = await account.getPrefs();     
+      if (user.email.isEmpty) {
+        //nothing
+      } else {
+        final prefs = await account.getPrefs();
         setState(() {
           setupStatus = prefs.data['setup_done'] != '1';
           accountRestricted = prefs.data['restricted'] == '1';
         });
-        }
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching user data: $e');
@@ -185,11 +183,11 @@ class _BottomNavigationState extends State<BottomNavigation> {
                   },
                 );
               } else if (result == 'refresh') {
-                  refetchUserData();
+                refetchUserData();
               } else if (result == 'privacy') {
-                  _openWebsite("https://legal.catpawz.net/lwc-privacy");
+                _openWebsite("https://legal.catpawz.net/lwc-privacy");
               } else if (result == 'tos') {
-                  _openWebsite("https://legal.catpawz.net/lwc-tos");
+                _openWebsite("https://legal.catpawz.net/lwc-tos");
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -232,38 +230,43 @@ class _BottomNavigationState extends State<BottomNavigation> {
             child: Card(
               margin: const EdgeInsets.all(0.0),
               shape: RoundedRectangleBorder(
-              borderRadius:
-                BorderRadius.circular(0), // Remove rounded corners
+                borderRadius:
+                    BorderRadius.circular(0), // Remove rounded corners
               ),
               child: InkWell(
-              onTap: () {
-                vibrateSelection();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                children: [
-                  const Icon(Icons.verified_user_rounded), // Add an icon on the left
-                  const SizedBox(
-                    width:
-                      10), // Add some space between the icon and the text
-                  Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                    'Click to finish account setup!',
-                    style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                    'It will only take a few minutes.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
+                onTap: () {
+                  vibrateSelection();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => SetupPage()),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      const Icon(Icons
+                          .verified_user_rounded), // Add an icon on the left
+                      const SizedBox(
+                          width:
+                              10), // Add some space between the icon and the text
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Click to finish account setup!',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            'It will only take a few minutes.',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
                 ),
-              ),
               ),
             ),
           ),
@@ -272,47 +275,49 @@ class _BottomNavigationState extends State<BottomNavigation> {
             child: Card(
               margin: const EdgeInsets.all(0.0),
               shape: RoundedRectangleBorder(
-              borderRadius:
-                BorderRadius.circular(0), // Remove rounded corners
+                borderRadius:
+                    BorderRadius.circular(0), // Remove rounded corners
               ),
               child: InkWell(
-              onTap: () {
-                vibrateSelection();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                children: [
-                  const Icon(Icons.warning_rounded), // Add an icon on the left
-                  const SizedBox(
-                    width:
-                      10), // Add some space between the icon and the text
-                  Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                    'Account restricted!',
-                    style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                    'You may not be able to access some features.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
+                onTap: () {
+                  vibrateSelection();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      const Icon(
+                          Icons.warning_rounded), // Add an icon on the left
+                      const SizedBox(
+                          width:
+                              10), // Add some space between the icon and the text
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Account restricted!',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            'You may not be able to access some features.',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
                 ),
-              ),
               ),
             ),
           ),
-            Expanded(
+          Expanded(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 800), // Set the max width here
+              constraints:
+                  const BoxConstraints(maxWidth: 800), // Set the max width here
               child: _pages[_currentIndex],
             ),
-            ),
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -337,15 +342,15 @@ class _BottomNavigationState extends State<BottomNavigation> {
             icon: Icon(Icons.quiz_rounded),
             label: 'Courses',
           ),
-            NavigationDestination(
-            icon:              CircleAvatar(
-                radius: 15,
-                backgroundImage: NetworkImage(
+          NavigationDestination(
+            icon: CircleAvatar(
+              radius: 15,
+              backgroundImage: NetworkImage(
                 Gravatar(usermail ?? 'guest@example.com').imageUrl(),
-                ),
               ),
-            label: 'Profile',
             ),
+            label: 'Profile',
+          ),
           const NavigationDestination(
             icon: Icon(Icons.settings_rounded),
             label: 'Settings',

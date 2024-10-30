@@ -203,8 +203,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 5),
               Divider(
-                color: Colors.deepPurple[300],
-                thickness: 2,
+                color: Colors.grey[300],
+                thickness: 1,
               ),
               const SizedBox(height: 10),
               Text(

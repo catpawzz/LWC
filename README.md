@@ -20,7 +20,7 @@ We use [GIT](https://git-scm.com/) for versioning and code review.
 
 ## Authors & Contributors
 
-  - **Catpawzz** - *Working on the code* - [Porfolio](https://catpawz.net)
+  - **Catpawzz** - *Working on the code and* - [Porfolio](https://catpawz.net)
   - **Billie Thompson** - *Provided README Template* - [PurpleBooth](https://github.com/PurpleBooth)
 
 ## License
